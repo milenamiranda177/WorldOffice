@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+
+<link rel="stylesheet" href="/webjars/bootstrap/4.2.1/css/bootstrap.min.css">
+<script src="/webjars/jquery/3.0.0/jquery.min.js"></script>
+<script src="/webjars/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+	var total=0;
+	$(".spinner-border").hide();
+	setInterval(function(){
+		$.get("http://localhost:8081/webapi/countEmpleados",function(countEmpleados){
+			console.log(countEmpleados);
+			$("#total").empty();
+			$("#total").append(countEmpleados);
+		})
+	}, 2000);
+	
+	
+	$("#formUpload").submit(function() {
+		$(".spinner-border").show();
+	})
+	$("#formSearch").submit(function() {
+		
+		$(".spinner-border").show();
+		$.get("http://localhost:8081/webapi/rankingCinco",function(listaPersonas){
+			
+			$(".spinner-border").hide();
+			$("table").empty();
+			$("table").append(encabezadoPer);
+			listaPersonas.forEach(function(persona) {
+						$("table").append(plantillaTabla(persona));
+			
+			})
+			
+		
+		})
+		return false;
+	})
+	
+	$("#formSum").submit(function() {
+		$(".spinner-border").show();
+		$.get("http://localhost:8081/webapi/buscarAgrupacion",function(listaPersonas){
+			
+			$(".spinner-border").hide();
+			$("table").empty();
+			$("table").append(encabezadoDep);
+			listaPersonas.forEach(function(persona) {
+						$("table").append(plantillaDepartamento(persona));
+			
+			})
+			
+		
+		})
+		return false;
+	})
+	
+	
+	
+})
+
+
+
+function encabezadoPer(){
+	enca = `<tr>
+    <td>Nombre</td>
+    <td>Cargo</td>
+    <td>Salario</td>
+    <td>Tiempo</td>
+    <td>Departamento</td>
+ 	</tr>`;
+ 	return enca;
+}
+
+function encabezadoDep(){
+	enca = `<tr>
+	    <td>Salario</td>
+	    <td>Departamento</td>
+	 	</tr>`;
+	return enca;
+}
+
+function plantillaTabla(persona) {
+	//ES6
+	var plantilla=
+		`<tr>
+	     <td>${persona.nombre}</td>
+	     <td>${persona.cargo}</td>
+	     <td>${persona.salario}</td>
+	     <td>${persona.tiempo}</td>
+	     <td>${persona.departamento}</td>
+	  </tr>`
+	  return plantilla;
+}
+
+function plantillaDepartamento(departamento) {
+	//ES6
+	var plantilla=
+		`<tr>
+	     <td>${departamento.salario}</td>
+	     <td>${departamento.departamento}</td>
+	  </tr>`
+	  return plantilla;
+}
+
+
+
+
+
+</script>
+<style>
+table , form {
+	margin:20px;
+}
+
+</style>
+</head>
+
+
+<form id="formUpload" method="POST" th:action="@{/personas/upload-csv-file}" enctype="multipart/form-data">
+    <div class="form-group mt-3">
+        <label for="file">Select a CSV file</label>
+        <input type="file" name="file" class="form-control-file" id="file" accept=".csv">
+    </div>
+    <button type="submit" class="btn btn-primary">Subir Empleados</button>
+</form>
+
+<div><label>Total Empleados:</label><label id="total"></label></div>
+<form id="formSearch" method="GET">
+    <button type="submit" class="btn btn-primary">Empleados con salario más alto</button>
+</form>
+<form id="formSum" method="GET">
+    <button type="submit" class="btn btn-primary">Sumatoria de salario por departamento</button>
+</form>
+
+<table class="table table-striped">
+<thead>
+	<tr><td>Nombre</td>
+	<td>Cargo</td>
+	<td>Salario</td>
+	<td>Tiempo</td>
+	<td>Departamento</td>
+	</tr>
+</thead>
+</table>
+
+
+
+<div id="loading" class="spinner-border" role="status">
+  <span class="sr-only">Cargando Datos</span>
+</div>
+
+
+
+</html>
